@@ -11,7 +11,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = new ApplicationUI();
-        final Scene scene = new Scene(root, 800, 400);
+        final Scene scene = new Scene(root, 1000, 500);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.setTitle("Movie App");
