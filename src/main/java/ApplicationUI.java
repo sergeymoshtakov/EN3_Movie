@@ -6,11 +6,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -102,21 +101,22 @@ public class ApplicationUI extends BorderPane{
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://softwarelab.ch/api/public/v2/movies"))
             .build();
-
+    
         client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
             .thenApply(HttpResponse::body)
             .thenAccept(jsonData -> {
-                parseJSONData(jsonData);
-                label2.setText(String.valueOf(data.size())); // Update the label text after loading the data
+                Platform.runLater(() -> {
+                    parseJSONData(jsonData);
+                    label2.setText(String.valueOf(data.size())); // Update the label text after loading the data
+                });
             })
             .exceptionally(e -> {
                 e.printStackTrace();
                 return null;
             });
-    }
+    }    
 
     private void parseJSONData(String jsonData) {
-        System.out.println(jsonData);
         data.clear();
 
         try {
@@ -157,7 +157,6 @@ public class ApplicationUI extends BorderPane{
                 Double averageView = jsonMovie.optDouble("vote_average", 0.0);
                 Movie movie = new Movie(title, directors, cast, year, homepage, averageView);
                 data.add(movie);
-                label2.setText(String.valueOf(data.size()));
             }
         } catch (JSONException e) {
             e.printStackTrace();
