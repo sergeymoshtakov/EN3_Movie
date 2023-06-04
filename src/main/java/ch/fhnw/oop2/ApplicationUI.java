@@ -1,3 +1,5 @@
+package ch.fhnw.oop2;
+
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

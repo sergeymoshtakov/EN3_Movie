@@ -1,3 +1,5 @@
+package ch.fhnw.oop2;
+
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 
@@ -53,16 +55,11 @@ public class PresentationModel {
                 JSONObject jsonMovie = jsonArray.getJSONObject(i);
                 String title = jsonMovie.getString("title");
                 JSONArray directorsArray = jsonMovie.getJSONArray("directors");
-                StringBuilder directorsBuilder = new StringBuilder();
-                for (int j = 0; j < directorsArray.length(); j++) {
-                    JSONObject directorObject = directorsArray.getJSONObject(j);
-                    String directorName = directorObject.getString("name");
-                    directorsBuilder.append(directorName);
-                    if (j < directorsArray.length() - 1) {
-                        directorsBuilder.append(", ");
-                    }
+                String directors = "";
+                if (directorsArray.length() > 0) {
+                    JSONObject firstDirector = directorsArray.getJSONObject(0);
+                    directors = firstDirector.getString("name");
                 }
-                String directors = directorsBuilder.toString();
                 JSONArray castArray = jsonMovie.getJSONArray("cast");
                 StringBuilder castBuilder = new StringBuilder();
                 for (int j = 0; j < castArray.length(); j++) {
