@@ -1,0 +1,22 @@
+plugins {
+	id 'java'
+	id 'org.openjfx.javafxplugin' version '0.0.13'
+}
+
+repositories {
+	mavenCentral()
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+javafx {
+	version = "19"
+	modules = [ 'javafx.swing', 'javafx.controls', 'javafx.graphics', 'javafx.base' ]
+}
+
+dependencies {
+    implementation 'org.json:json:20230227'
+}
