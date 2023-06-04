@@ -1,15 +1,4 @@
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -23,156 +12,84 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
-public class ApplicationUI extends BorderPane{
-    
+/**
+ * The ApplicationUI class represents the user interface of the movie application.
+ * It extends the BorderPane class and contains various controls and a TableView to display movie data.
+ */
+public class ApplicationUI extends BorderPane {
     private ComboBox<String> dropdown;
     private TextField textField;
     private Label label1;
     private Label label2;
     private Button button;
     private TableView<Movie> tableView;
-    private ObservableList<Movie> data;
-    
-    public ApplicationUI(){
+    public ObservableList<Movie> data;
+    private PresentationModel presentationModel;
+
+    /**
+     * Constructs an instance of the ApplicationUI class.
+     * Initializes the controls, sets up the layout, and creates a PresentationModel.
+     */
+    public ApplicationUI() {
         initializeControls();
         layoutControls();
+        presentationModel = new PresentationModel(data);
     }
 
+    /**
+     * Sets up the layout of the user interface by placing controls in the appropriate containers.
+     */
     private void layoutControls() {
         HBox topContainer = new HBox(10);
         topContainer.setPadding(new Insets(10));
         topContainer.getChildren().addAll(dropdown, textField, label1, label2, button);
         this.setTop(topContainer);
-        
+
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         this.setCenter(tableView);
-    }    
+    }
 
+    /**
+     * Initializes the controls by creating instances and setting up event handlers.
+     */
     private void initializeControls() {
         dropdown = new ComboBox<>();
         dropdown.setPromptText("Title");
         dropdown.setItems(FXCollections.observableArrayList("Option 1", "Option 2", "Option 3"));
-
+        
         textField = new TextField();
-
+        
         button = new Button("Load");
-
+        
         data = FXCollections.observableArrayList();
-
-        tableView = new TableView<Movie>(data);
-
+        tableView = new TableView<>(data);
         label1 = new Label("Angezeigte Datensätze: ");
         label2 = new Label();
-        label2.setText(String.valueOf(data.size()));
-
+        label2.textProperty().bind(Bindings.size(data).asString());
+        
         button.setOnAction(event -> {
-            loadDataFromServer();
+            presentationModel.loadDataFromServer();
         });
-
-        TableColumn<Movie, String> titleColumn = new TableColumn<Movie, String>("Title");
-        titleColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("title"));
+        TableColumn<Movie, String> titleColumn = new TableColumn<>("Title");
+        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         tableView.getColumns().add(titleColumn);
-
-        TableColumn<Movie, String> directorColumn = new TableColumn<Movie, String>("Director");
-        directorColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("director"));
+        TableColumn<Movie, String> directorColumn = new TableColumn<>("Director");
+        directorColumn.setCellValueFactory(new PropertyValueFactory<>("director"));
         tableView.getColumns().add(directorColumn);
-
-        TableColumn<Movie, String> castColumn = new TableColumn<Movie, String>("Cast");
-        castColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("cast"));
+        TableColumn<Movie, String> castColumn = new TableColumn<>("Cast");
+        castColumn.setCellValueFactory(new PropertyValueFactory<>("cast"));
         tableView.getColumns().add(castColumn);
-
-        TableColumn<Movie, Integer> yearColumn = new TableColumn<Movie, Integer>("Year");
-        yearColumn.setCellValueFactory(new PropertyValueFactory<Movie, Integer>("year"));
+        TableColumn<Movie, Integer> yearColumn = new TableColumn<>("Year");
+        yearColumn.setCellValueFactory(new PropertyValueFactory<>("year"));
         tableView.getColumns().add(yearColumn);
-
-        TableColumn<Movie, String> homepageColumn = new TableColumn<Movie, String>("Homepage");
-        homepageColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("homepage"));
+        TableColumn<Movie, String> homepageColumn = new TableColumn<>("Homepage");
+        homepageColumn.setCellValueFactory(new PropertyValueFactory<>("homepage"));
         tableView.getColumns().add(homepageColumn);
-
-        TableColumn<Movie, Double> averageViewColumn = new TableColumn<Movie, Double>("Average view");
-        averageViewColumn.setCellValueFactory(new PropertyValueFactory<Movie, Double>("averageView"));
+        TableColumn<Movie, Double> averageViewColumn = new TableColumn<>("Average view");
+        averageViewColumn.setCellValueFactory(new PropertyValueFactory<>("averageView"));
         tableView.getColumns().add(averageViewColumn);
 
         tableView.setItems(data);
     }
 
-    private void loadDataFromServer() {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://softwarelab.ch/api/public/v2/movies"))
-            .build();
-    
-        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(HttpResponse::body)
-            .thenAccept(jsonData -> {
-                Platform.runLater(() -> {
-                    parseJSONData(jsonData);
-                    label2.setText(String.valueOf(data.size())); // Update the label text after loading the data
-                });
-            })
-            .exceptionally(e -> {
-                e.printStackTrace();
-                return null;
-            });
-    }    
-
-    private void parseJSONData(String jsonData) {
-        data.clear();
-
-        try {
-            JSONArray jsonArray = new JSONArray(jsonData);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonMovie = jsonArray.getJSONObject(i);
-
-                String title = jsonMovie.getString("title");
-
-                JSONArray directorsArray = jsonMovie.getJSONArray("directors");
-                StringBuilder directorsBuilder = new StringBuilder();
-                for (int j = 0; j < directorsArray.length(); j++) {
-                    JSONObject directorObject = directorsArray.getJSONObject(j);
-                    String directorName = directorObject.getString("name");
-                    directorsBuilder.append(directorName);
-                    if (j < directorsArray.length() - 1) {
-                        directorsBuilder.append(", ");
-                    }
-                }
-                String directors = directorsBuilder.toString();
-
-                JSONArray castArray = jsonMovie.getJSONArray("cast");
-                StringBuilder castBuilder = new StringBuilder();
-                for (int j = 0; j < castArray.length(); j++) {
-                    JSONObject castObject = castArray.getJSONObject(j);
-                    String actorName = castObject.getString("name");
-                    castBuilder.append(actorName);
-                    if (j < castArray.length() - 1) {
-                        castBuilder.append(", ");
-                    }
-                }
-                String cast = castBuilder.toString();
-
-                String releaseDate = jsonMovie.getString("release_date");
-                int year = getYearFromDate(releaseDate);
-
-                String homepage = jsonMovie.optString("homepage", "");
-                Double averageView = jsonMovie.optDouble("vote_average", 0.0);
-                Movie movie = new Movie(title, directors, cast, year, homepage, averageView);
-                data.add(movie);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private int getYearFromDate(String date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            Date parsedDate = dateFormat.parse(date);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(parsedDate);
-            return calendar.get(Calendar.YEAR);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }     
 }
