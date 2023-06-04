@@ -57,7 +57,7 @@ public class ApplicationUI extends BorderPane {
     private void initializeControls() {
         dropdown = new ComboBox<>();
         dropdown.setPromptText("Title");
-        dropdown.setItems(FXCollections.observableArrayList("Option 1", "Option 2", "Option 3"));
+        dropdown.setItems(FXCollections.observableArrayList("Title", "Director", "Cast", "Year"));
         
         textField = new TextField();
         
