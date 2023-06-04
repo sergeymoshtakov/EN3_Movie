@@ -1,3 +1,12 @@
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -19,6 +28,7 @@ public class ApplicationUI extends BorderPane{
     private Label label2;
     private Button button;
     private TableView<Movie> tableView;
+    private ObservableList<Movie> data;
     
     public ApplicationUI(){
         initializeControls();
@@ -47,39 +57,78 @@ public class ApplicationUI extends BorderPane{
 
         button = new Button("Load");
 
-        ObservableList<Movie> data = FXCollections.observableArrayList(
-            new Movie(" ", " ", " ", 0, " ", 0),
-            new Movie(" ", " ", " ", 0, " ", 0),
-            new Movie(" ", " ", " ", 0, " ", 0)
-        );
+        data = FXCollections.observableArrayList();
 
         tableView = new TableView<Movie>(data);
 
-        TableColumn<Movie, String> titleColumn = new TableColumn<Movie, String>("Title");
-        titleColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("title"));
-        tableView.getColumns().add(titleColumn);
+        button.setOnAction(event -> {
+            loadDataFromServer();
+        });
 
-        TableColumn<Movie, String> directorColumn = new TableColumn<Movie, String>("Director");
-        directorColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("director"));
-        tableView.getColumns().add(directorColumn);
+        // TableColumn<Movie, String> titleColumn = new TableColumn<Movie, String>("Title");
+        // titleColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("title"));
+        // tableView.getColumns().add(titleColumn);
 
-        TableColumn<Movie, String> castColumn = new TableColumn<Movie, String>("Cast");
-        castColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("cast"));
-        tableView.getColumns().add(castColumn);
+        // TableColumn<Movie, String> directorColumn = new TableColumn<Movie, String>("Director");
+        // directorColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("director"));
+        // tableView.getColumns().add(directorColumn);
 
-        TableColumn<Movie, Integer> yearColumn = new TableColumn<Movie, Integer>("Year");
-        yearColumn.setCellValueFactory(new PropertyValueFactory<Movie, Integer>("year"));
-        tableView.getColumns().add(yearColumn);
+        // TableColumn<Movie, String> castColumn = new TableColumn<Movie, String>("Cast");
+        // castColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("cast"));
+        // tableView.getColumns().add(castColumn);
 
-        TableColumn<Movie, String> homepageColumn = new TableColumn<Movie, String>("Homepage");
-        homepageColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("homepage"));
-        tableView.getColumns().add(homepageColumn);
+        // TableColumn<Movie, Integer> yearColumn = new TableColumn<Movie, Integer>("Year");
+        // yearColumn.setCellValueFactory(new PropertyValueFactory<Movie, Integer>("year"));
+        // tableView.getColumns().add(yearColumn);
 
-        TableColumn<Movie, Double> averageViewColumn = new TableColumn<Movie, Double>("Average view");
-        averageViewColumn.setCellValueFactory(new PropertyValueFactory<Movie, Double>("averageView"));
-        tableView.getColumns().add(averageViewColumn);
-                
-        tableView.setItems(data);
+        // TableColumn<Movie, String> homepageColumn = new TableColumn<Movie, String>("Homepage");
+        // homepageColumn.setCellValueFactory(new PropertyValueFactory<Movie, String>("homepage"));
+        // tableView.getColumns().add(homepageColumn);
+
+        // TableColumn<Movie, Double> averageViewColumn = new TableColumn<Movie, Double>("Average view");
+        // averageViewColumn.setCellValueFactory(new PropertyValueFactory<Movie, Double>("averageView"));
+        // tableView.getColumns().add(averageViewColumn);
+
+        // tableView.setItems(data);
     }
 
+    private void loadDataFromServer() {
+        HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://softwarelab.ch/api/public/v2/movies"))
+            .build();
+
+    client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            .thenApply(HttpResponse::body)
+            .thenAccept(jsonData -> {
+                parseJSONData(jsonData);
+            })
+            .exceptionally(e -> {
+                e.printStackTrace();
+                return null;
+            });
+    }
+
+    private void parseJSONData(String jsonData) {
+        data.clear();
+
+        try {
+            JSONArray jsonArray = new JSONArray(jsonData);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonMovie = jsonArray.getJSONObject(i);
+
+                String title = jsonMovie.getString("title");
+                String director = jsonMovie.getString("director");
+                String cast = jsonMovie.getString("cast");
+                int year = jsonMovie.getInt("cast");
+                String homepage = jsonMovie.getString("homepage");
+                double averageView = jsonMovie.getDouble("averageView");
+
+                Movie movie = new Movie(title, director, cast, year, homepage, averageView);
+                data.add(movie);
+            }
+        } catch (JSONException e) {
+        e.printStackTrace();
+        }
+    }
 }
