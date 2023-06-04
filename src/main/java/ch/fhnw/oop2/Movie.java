@@ -1,14 +1,12 @@
 package ch.fhnw.oop2;
-
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-
+import javafx.beans.property.SimpleBooleanProperty;
 /**
  * Represents a movie with various properties.
  */
 public class Movie {
-
     // Property fields using JavaFX property types
     private SimpleStringProperty title;
     private SimpleStringProperty director;
@@ -16,7 +14,7 @@ public class Movie {
     private SimpleIntegerProperty year;
     private SimpleStringProperty homepage;
     private SimpleDoubleProperty averageView;
-
+    private SimpleBooleanProperty filtered;
     /**
      * Constructs a Movie object with the specified properties.
      *
@@ -34,8 +32,8 @@ public class Movie {
         this.year = new SimpleIntegerProperty(year);
         this.homepage = new SimpleStringProperty(homepage);
         this.averageView = new SimpleDoubleProperty(averageView);
+        this.filtered = new SimpleBooleanProperty(true);
     }
-
     /**
      * Sets the title of the movie.
      *
@@ -44,7 +42,6 @@ public class Movie {
     public void setTitle(String value) {
         title.set(value);
     }
-
     /**
      * Gets the title of the movie.
      *
@@ -53,7 +50,6 @@ public class Movie {
     public String getTitle() {
         return title.get();
     }
-
     /**
      * Sets the director(s) of the movie.
      *
@@ -62,7 +58,6 @@ public class Movie {
     public void setDirector(String value) {
         director.set(value);
     }
-
     /**
      * Gets the director(s) of the movie.
      *
@@ -71,7 +66,6 @@ public class Movie {
     public String getDirector() {
         return director.get();
     }
-
     /**
      * Gets the cast members of the movie.
      *
@@ -80,7 +74,6 @@ public class Movie {
     public String getCast() {
         return cast.get();
     }
-
     /**
      * Sets the cast members of the movie.
      *
@@ -89,7 +82,6 @@ public class Movie {
     public void setCast(String value) {
         cast.set(value);
     }
-
     /**
      * Gets the release year of the movie.
      *
@@ -98,7 +90,6 @@ public class Movie {
     public int getYear() {
         return year.get();
     }
-
     /**
      * Sets the release year of the movie.
      *
@@ -107,7 +98,6 @@ public class Movie {
     public void setYear(int value) {
         year.set(value);
     }
-
     /**
      * Gets the homepage URL of the movie.
      *
@@ -116,7 +106,6 @@ public class Movie {
     public String getHomepage() {
         return homepage.get();
     }
-
     /**
      * Sets the homepage URL of the movie.
      *
@@ -125,7 +114,6 @@ public class Movie {
     public void setHomepage(String value) {
         homepage.set(value);
     }
-
     /**
      * Gets the average view rating of the movie.
      *
@@ -134,7 +122,6 @@ public class Movie {
     public double getAverageView() {
         return averageView.get();
     }
-
     /**
      * Sets the average view rating of the movie.
      *
@@ -142,5 +129,19 @@ public class Movie {
      */
     public void setAverageView(double value) {
         averageView.set(value);
+    }
+    /**
+    * Checks if the movie is filtered.
+    * @return True if the movie is filtered, false otherwise.
+    */
+    public boolean isFiltered() {
+        return filtered.get();
+    }
+    /**
+    * Sets the filtered state of the movie.
+    * @param filtered The filtered state to set.
+    */
+    public void setFiltered(boolean filtered) {
+        this.filtered.set(filtered);
     }
 }
