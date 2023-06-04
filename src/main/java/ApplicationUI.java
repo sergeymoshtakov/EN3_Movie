@@ -28,15 +28,8 @@ public class ApplicationUI extends BorderPane{
     private void layoutControls() {
         HBox topContainer = new HBox(10);
         topContainer.setPadding(new Insets(10));
-    
         topContainer.getChildren().addAll(dropdown, textField, label1, label2, button);
         this.setTop(topContainer);
-    
-        TableColumn<Movie, String> titleColumn = new TableColumn<>("Title");
-        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
-    
-        TableColumn<Movie, String> directorColumn = new TableColumn<>("Director");
-        directorColumn.setCellValueFactory(new PropertyValueFactory<>("director"));
         
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         this.setCenter(tableView);
@@ -85,7 +78,7 @@ public class ApplicationUI extends BorderPane{
         TableColumn<Movie, Double> averageViewColumn = new TableColumn<Movie, Double>("Average view");
         averageViewColumn.setCellValueFactory(new PropertyValueFactory<Movie, Double>("averageView"));
         tableView.getColumns().add(averageViewColumn);
-
+                
         tableView.setItems(data);
     }
 
